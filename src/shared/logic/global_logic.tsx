@@ -20,7 +20,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     const value = service.isDarkMode;
     if (value == isDarkMode) return;
     setDarkMode(value);
-  }, [service]);
+  }, [service, isDarkMode]);
 
   const changeDarkMode = () => {
     const value = !isDarkMode;
