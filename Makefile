@@ -5,8 +5,8 @@ copyEnv:
 	cp ".env.$(ENV)" $(ENV_FILE)
 
 freshInstall:
-	rm -rf node_modules package-lock.json
-	npm install
+	rm -rf node_modules bun.lock
+	bun install
 
 deploy:
 	make ENV=production copyEnv
