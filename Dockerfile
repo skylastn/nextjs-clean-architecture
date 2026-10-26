@@ -5,10 +5,10 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
-
 # ---------- builder ----------
 FROM oven/bun:1.4.2-alpine AS builder
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build-time args (di-inject dari docker-compose)
 ARG APP_ENV
@@ -21,7 +21,6 @@ ENV NEXT_PUBLIC_ENDPOINT_URL=$NEXT_PUBLIC_ENDPOINT_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN rm -rf .next || true
 RUN bun run build
 
 
@@ -33,14 +32,14 @@ WORKDIR /app
 ARG APP_ENV
 ARG NEXT_PUBLIC_ENDPOINT_URL
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 ENV APP_ENV=$APP_ENV
 ENV NEXT_PUBLIC_ENDPOINT_URL=$NEXT_PUBLIC_ENDPOINT_URL
 
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
 
 EXPOSE 3000
-CMD ["bun", "run", "start"]
+CMD ["bun", "server.js"]
